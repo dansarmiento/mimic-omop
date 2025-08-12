@@ -1,137 +1,173 @@
-MIMIC-OMOP
-==========
+# MIMIC-OMOP Local Setup Automation
 
-This repository contains an Extract-Transform-Load (ETL) process for mapping the [MIMIC-III database](mimic.physionet.org) to the [OMOP Common Data Model](https://github.com/OHDSI/CommonDataModel). This process involves both transforming the structure of the database (i.e. the relational schema), but also standardizing the many concepts in the MIMIC-III database to a standard vocabulary (primarily the [Athena Vocabulary](https://www.ohdsi.org/analytic-tools/athena-standardized-vocabularies/), which you can explore [here](athena.ohdsi.org)).
+This repository contains a streamlined, Python-based toolkit to build a local instance of the MIMIC-III database mapped to the OMOP Common Data Model. It automates the setup, data loading, and transformation process, making it significantly easier for researchers and developers to get started.
 
-DOCUMENTATION
-===============
+This project is a fork of the original [MIT-LCP/mimic-omop](https://github.com/MIT-LCP/mimic-omop) repository, refactored to be a standalone tool for local database creation.
 
-- [Resources](https://mit-lcp.github.io/mimic-omop/)
-    - [Achilles](https://mit-lcp.github.io/mimic-omop/AchillesWeb)
-    - [OMOP Data Model](https://mit-lcp.github.io/mimic-omop/schemaspy-omop)
-    - [MIMIC Data Model](https://mit-lcp.github.io/mimic-omop/schemaspy-mimic)
+## Project Goals
 
-"WHERE IS ..."
-===================================================
+- **Simplicity**: To provide a simple, command-line-based approach to setting up a MIMIC-OMOP database.
+- **Automation**: To automate as much of the setup and ETL process as possible, reducing manual steps.
+- **Reproducibility**: To ensure that anyone can create a consistent version of the database using this toolkit.
 
-Below in the README, we provide two sections. The first section, *OMOP TABLES LOADED*, lists the OMOP tables which have been populated from MIMIC-III. You can use this section to figure out what data generated each OMOP TABLE. For example, we can see that the OMOP CDM table *person* was populated using data from the *patients* and *admissions* table in MIMIC-III.
+---
 
-The second section, *MIMIC TABLES EQUIVALENCE*, lists all the tables in MIMIC-III, and shows where the data now exists in the OMOP CDM. For example, we can see that the MIMIC-III table *patients* was used to populate the OMOP CDM tables *person* and *death*.
+## Running with Docker (Recommended)
 
-OMOP TABLES LOADED
-==================
+Using Docker is the recommended way to run this project. It simplifies setup by providing a self-contained environment with all the necessary dependencies.
 
-- [PERSON](etl/StandardizedClinicalDataTables/PERSON)
-  - [patients](https://mimic.physionet.org/mimictables/patients/)
-  - [admissions](https://mimic.physionet.org/mimictables/admissions/)
-- [DEATH](etl/StandardizedClinicalDataTables/DEATH)
-  - [patients](https://mimic.physionet.org/mimictables/patients/)
-  - [admissions](https://mimic.physionet.org/mimictables/admissions/)
-- [VISIT_OCCURRENCE](etl/StandardizedClinicalDataTables/VISIT_OCCURRENCE)
-  - [admissions](https://mimic.physionet.org/mimictables/admissions/)
-- [VISIT_DETAIL](etl/StandardizedClinicalDataTables/VISIT_DETAIL)
-  - [admissions](https://mimic.physionet.org/mimictables/admissions/)
-  - [transfers](https://mimic.physionet.org/mimictables/transfers/)
-  - [service](https://mimic.physionet.org/mimictables/services/)
-- [SPECIMEN](etl/StandardizedClinicalDataTables/SPECIMEN)
-  - [chartevents](https://mimic.physionet.org/mimictables/chartevents/)
-  - [labevents](https://mimic.physionet.org/mimictables/labevents/)
-  - [microbiologyevents](https://mimic.physionet.org/mimictables/microbiologyevents/)
-- [MEASUREMENT](etl/StandardizedClinicalDataTables/MEASUREMENT)
-  - [chartevents](https://mimic.physionet.org/mimictables/chartevents/)
-  - [labevents](https://mimic.physionet.org/mimictables/labevents/)
-  - [microbiologyevents](https://mimic.physionet.org/mimictables/microbiologyevents/)
-  - [outputevents](https://mimic.physionet.org/mimictables/outputevents/)
-  - [inputevents_mv](https://mimic.physionet.org/mimictables/inputevents_mv/)
-- [PROCEDURE_OCCURRENCE](etl/StandardizedClinicalDataTables/PROCEDURE_OCCURRENCE)
-  - [cptevents](https://mimic.physionet.org/mimictables/cptevents/)
-  - [procedureevents_mv](https://mimic.physionet.org/mimictables/procedureevents_mv/)
-  - [procedure_icd](https://mimic.physionet.org/mimictables/procedures_icd/)
-- [CONDITION_OCCURRENCE](etl/StandardizedClinicalDataTables/CONDITION_OCCURRENCE)
-  - [admissions](https://mimic.physionet.org/mimictables/admissions/)
-  - [diagnosis_icd](https://mimic.physionet.org/mimictables/diagnoses_icd/)
-- [OBSERVATION](etl/StandardizedClinicalDataTables/OBSERVATION)
-  - [admissions](https://mimic.physionet.org/mimictables/admissions/)
-  - [chartevents](https://mimic.physionet.org/mimictables/chartevents/)
-  - [datetimeevents](https://mimic.physionet.org/mimictables/datetimeevents/)
-  - [drgcodes](https://mimic.physionet.org/mimictables/drgcodes/)
-- [DRUG_EXPOSURE](etl/StandardizedClinicalDataTables/DRUG_EXPOSURE)
-  - [prescriptions](https://mimic.physionet.org/mimictables/prescriptions/)
-  - [inputevents_cv](https://mimic.physionet.org/mimictables/inputevents_cv/)
-  - [inputevents_mv](https://mimic.physionet.org/mimictables/inputevents_mv/)
-- [NOTE](etl/StandardizedClinicalDataTables/NOTE)
-  - [notevents](https://mimic.physionet.org/mimictables/noteevents/)
-- [NOTE_NLP](etl/StandardizedClinicalDataTables/NOTE_NLP)
-  - [notevents](https://mimic.physionet.org/mimictables/noteevents/)
-- [COHORT_DEFINITION](etl/StandardizedVocabularies/COHORT_DEFINITION)
-- [COHORT](etl/StandardizedDerivedElements/COHORT)
-- [COHORT_ATTRIBUTE](etl/StandardizedDerivedElements//COHORT_ATTRIBUTE)
-   - [callout](https://mimic.physionet.org/mimictables/callout/)
-- [ATTRIBUTE_DEFINITION](etl/StandardizedVocabularies/ATTRIBUTE_DEFINITION)
-- [CARE_SITE](etl/StandardizedHealthSystemDataTables/CARE_SITE)
-  - [transfers](https://mimic.physionet.org/mimictables/transfers/)
-  - [service](https://mimic.physionet.org/mimictables/services/)
-- [PROVIDER](etl/StandardizedHealthSystemDataTables/PROVIDER)
-  - [caregivers](https://mimic.physionet.org/mimictables/caregivers/)
+### 1. Prerequisites
 
-[![MIMIC](https://github.com/MIT-LCP/mimic-omop/blob/master/images/mimic.png)](https://mimic.physionet.org/)
+- **Docker**: Install [Docker Desktop](https://www.docker.com/products/docker-desktop) for your operating system.
+- **MIMIC-III & OMOP Data**: You still need to acquire the MIMIC-III and OMOP Vocabulary data files as described in the manual setup.
 
-MIMIC TABLES EQUIVALENCE
-========================
+### 2. Configure Docker Compose
 
-- [patients](https://mimic.physionet.org/mimictables/patients/)
-  - [PERSON](etl/StandardizedClinicalDataTables/PERSON)
-  - [DEATH](etl/StandardizedClinicalDataTables/DEATH)
-- [admissions](https://mimic.physionet.org/mimictables/admissions/)
-  - [PERSON](etl/StandardizedClinicalDataTables/PERSON)
-  - [DEATH](etl/StandardizedClinicalDataTables/DEATH)
-  - [VISIT_OCCURRENCE](etl/StandardizedClinicalDataTables/VISIT_OCCURRENCE)
-  - [VISIT_DETAIL](etl/StandardizedClinicalDataTables/VISIT_DETAIL)
-  - [OBSERVATION](etl/StandardizedClinicalDataTables/OBSERVATION)
-  - [CONDITION_OCCURRENCE](etl/StandardizedClinicalDataTables/CONDITION_OCCURRENCE)
-- [transfers](https://mimic.physionet.org/mimictables/transfers/)
-  - [VISIT_DETAIL](etl/StandardizedClinicalDataTables/VISIT_DETAIL)
-- [icustays](https://mimic.physionet.org/mimictables/icustays/)
-  - The ICUSTAYS table is fully derived from the transfers table
-- [service](https://mimic.physionet.org/mimictables/services/)
-  - [VISIT_DETAIL](etl/StandardizedClinicalDataTables/VISIT_DETAIL)
-- [prescriptions](https://mimic.physionet.org/mimictables/prescriptions/)
-  - [DRUG_EXPOSURE](etl/StandardizedClinicalDataTables/DRUG_EXPOSURE)
-- [inputevents_cv](https://mimic.physionet.org/mimictables/inputevents_cv/)
-  - [DRUG_EXPOSURE](etl/StandardizedClinicalDataTables/DRUG_EXPOSURE)
-- [inputevents_mv](https://mimic.physionet.org/mimictables/inputevents_mv/)
-  - [DRUG_EXPOSURE](etl/StandardizedClinicalDataTables/DRUG_EXPOSURE)
-  - [MEASUREMENT](etl/StandardizedClinicalDataTables/MEASUREMENT)
-- [outputevents](https://mimic.physionet.org/mimictables/outputevents/)
-  - [MEASUREMENT](etl/StandardizedClinicalDataTables/MEASUREMENT)
-- [labevents](https://mimic.physionet.org/mimictables/labevents/)
-  - [SPECIMEN](etl/StandardizedClinicalDataTables/SPECIMEN)
-  - [MEASUREMENT](etl/StandardizedClinicalDataTables/MEASUREMENT)
-- [microbiologyevents](https://mimic.physionet.org/mimictables/microbiologyevents/)
-  - [SPECIMEN](etl/StandardizedClinicalDataTables/SPECIMEN)
-  - [MEASUREMENT](etl/StandardizedClinicalDataTables/MEASUREMENT)
-- [chartevents](https://mimic.physionet.org/mimictables/chartevents/)
-  - [SPECIMEN](etl/StandardizedClinicalDataTables/SPECIMEN)
-  - [MEASUREMENT](etl/StandardizedClinicalDataTables/MEASUREMENT)
-  - [OBSERVATION](etl/StandardizedClinicalDataTables/OBSERVATION)
-- [drgcodes](https://mimic.physionet.org/mimictables/drgcodes/)
-  - [OBSERVATION](etl/StandardizedClinicalDataTables/OBSERVATION)
-- [datetimeevents](https://mimic.physionet.org/mimictables/datetimeevents/)
-  - [OBSERVATION](etl/StandardizedClinicalDataTables/OBSERVATION)
-- [procedure_icd](https://mimic.physionet.org/mimictables/procedures_icd/)
-  - [PROCEDURE_OCCURRENCE](etl/StandardizedClinicalDataTables/PROCEDURE_OCCURRENCE)
-- [procedureevents_mv](https://mimic.physionet.org/mimictables/procedureevents_mv/)
-  - [PROCEDURE_OCCURRENCE](etl/StandardizedClinicalDataTables/PROCEDURE_OCCURRENCE)
-- [cptevents](https://mimic.physionet.org/mimictables/cptevents/)
-  - [PROCEDURE_OCCURRENCE](etl/StandardizedClinicalDataTables/PROCEDURE_OCCURRENCE)
-- [diagnosis_icd](https://mimic.physionet.org/mimictables/diagnoses_icd/)
-  - [CONDITION_OCCURRENCE](etl/StandardizedClinicalDataTables/CONDITION_OCCURRENCE)
-- [notevents](https://mimic.physionet.org/mimictables/noteevents/)
-  - [NOTE](etl/StandardizedClinicalDataTables/NOTE)
-  - [NOTE_NLP](etl/StandardizedClinicalDataTables/NOTE_NLP)
-- [caregivers](https://mimic.physionet.org/mimictables/caregivers/)
-  - [PROVIDER](etl/StandardizedHealthSystemDataTables/PROVIDER)
-- [callout](https://mimic.physionet.org/mimictables/callout/)
-  - [COHORT_ATTRIBUTES](etl/StandardizedDerivedElements/COHORT_ATTRIBUTE)
+Open the `docker-compose.yml` file and update the volume paths to point to your local data directories:
 
+```yaml
+services:
+  etl:
+    volumes:
+      # ...
+      # --- IMPORTANT ---
+      # You MUST update the paths below to the absolute paths on your host machine.
+      - /path/to/your/mimic-iii-clinical-database-1.4:/data/mimic-iii
+      - /path/to/your/athena-vocabulary:/data/athena
+```
 
+### 3. Build and Run the Containers
+
+Build and start the `postgres` and `etl` services in the background:
+
+```bash
+docker-compose up --build -d
+```
+
+### 4. Run the ETL Process
+
+Once the containers are running, you can execute the ETL scripts inside the `etl` container.
+
+First, open an interactive shell in the running container:
+
+```bash
+docker-compose exec etl bash
+```
+
+Now, from within the container's shell, run the scripts in order:
+
+```bash
+# Run the setup script (it will be fast as most setup is done by Docker)
+python setup.py
+
+# Run the main ETL script
+python run_etl.py
+
+# Run the validation script
+python validate.py
+```
+
+### 5. Accessing the Database
+
+The PostgreSQL database is exposed on port `5433` on your host machine. You can connect to it using any database client with the credentials from the `config.ini` file.
+
+---
+
+## Getting Started (Manual Setup)
+
+Follow these steps if you prefer to set up your local MIMIC-OMOP database without Docker.
+
+### 1. Prerequisites
+
+Before you begin, ensure you have the following software installed and accessible from your command line:
+
+- **Python 3.7+**: Required to run the automation scripts.
+- **Git**: Required to clone this repository and its dependencies.
+- **PostgreSQL 9.6+**: The database system where MIMIC and OMOP data will be stored. You must have a running PostgreSQL server.
+- **MIMIC-III Clinical Data**: You must have access to the MIMIC-III Clinical Database files (version 1.4). You can request access via [PhysioNet](https://mimic.physionet.org/gettingstarted/access/).
+- **OMOP Vocabulary**: You need to download the standardized vocabularies (e.g., SNOMED, LOINC, RxNorm) from [OHDSI Athena](https://athena.ohdsi.org/).
+
+### 2. Clone the Repository
+
+Start by cloning this repository to your local machine:
+
+```bash
+git clone https://github.com/dansarmiento/mimic-omop.git
+cd mimic-omop
+```
+
+### 3. Install Python Dependencies
+
+Install the required Python packages using the `requirements.txt` file:
+
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Configure Your Setup
+
+Create a configuration file by copying the example template:
+
+```bash
+cp config.example.ini config.ini
+```
+
+Now, open `config.ini` in a text editor and fill in your local details. This is a critical step.
+
+**`[postgresql]` section:**
+- `host`: The hostname or IP address of your PostgreSQL server (e.g., `localhost`).
+- `port`: The port your PostgreSQL server is running on (e.g., `5432`).
+- `user`: Your PostgreSQL username.
+- `password`: Your PostgreSQL password.
+- `database`: The name of the database to use. The `setup.py` script assumes this database already exists.
+- `mimic_schema`: The name for the schema where the raw MIMIC-III data will be stored (e.g., `mimiciii`).
+- `omop_schema`: The name for the schema where the final OMOP CDM data will be stored (e.g., `omop`).
+
+**`[paths]` section:**
+- `mimic_data`: The absolute path to the directory containing the unzipped MIMIC-III `.csv` files.
+- `athena_vocab`: The absolute path to the directory containing the unzipped OMOP vocabulary `.csv` files you downloaded from Athena.
+
+### 5. Run the Setup Script
+
+The `setup.py` script prepares your environment. It checks prerequisites, clones the OMOP CommonDataModel repository, guides you through the vocabulary download, and creates the necessary database schemas.
+
+```bash
+python setup.py
+```
+
+The script will pause and ask you to confirm once you have downloaded the vocabularies from Athena and updated your `config.ini`.
+
+### 6. Run the ETL Script
+
+This is the main event. The `run_etl.py` script orchestrates the entire Extract, Transform, Load (ETL) process. It will:
+1.  Create unique identifiers (`mimic_id`) for local concepts.
+2.  Load the custom concept mappings from the CSV files.
+3.  Transform the MIMIC data and load it into the OMOP CDM tables.
+
+This process can take a significant amount of time depending on your hardware.
+
+```bash
+python run_etl.py
+```
+
+### 7. Validate the Installation
+
+After the ETL process is complete, you can run the `validate.py` script to perform a series of checks on the resulting database. This will verify that tables were created, data was loaded, and primary keys are not null.
+
+```bash
+python validate.py
+```
+
+If all checks pass, you are ready to start using your local MIMIC-OMOP database!
+
+---
+
+## How It Works
+
+This toolkit consists of three main Python scripts:
+
+- **`setup.py`**: Prepares the environment. It's designed to be run once at the beginning.
+- **`run_etl.py`**: Executes the full ETL process. It's the core of this toolkit and is responsible for all data transformation and loading.
+- **`validate.py`**: A testing script to verify that the ETL was successful.
+
+The original SQL scripts from the `MIT-LCP/mimic-omop` project are preserved in the `etl/` directory and are executed by the `run_etl.py` script. The original R script for loading concepts has been replaced with a Python equivalent within `run_etl.py`.
